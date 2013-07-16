@@ -46,8 +46,8 @@ public class MyGreep extends Greep
     // Remember: you cannot extend the Greep's memory. So:
     // no additional fields (other than final fields) allowed in this class!
     
-    private static final int WATER_TURN_DEGREES = 10;
-    private static final int EDGE_TURN_DEGREES = 30;
+    private static final int WATER_TURN_DEGREES = 20;
+    private static final int EDGE_TURN_DEGREES = 20;
     private static final int TOMATO_LOCATION_KNOWN = 1;
 
     /**
@@ -114,12 +114,18 @@ public class MyGreep extends Greep
             loadTomato();
             // Note: this attempts to load a tomato onto *another* Greep. It won't
             // do anything if we are alone here.
+            setKnownLocation(tomatoes.getX(), tomatoes.getY());
 
-            setMemory(0, TOMATO_LOCATION_KNOWN);
-            setMemory(1, tomatoes.getX());
-            setMemory(2, tomatoes.getY());
 
         }
+    }
+    /**
+    * sets the greeps "GPS" with known coords
+    */
+    public void setKnownLocation(int x, int y){
+            setMemory(0, TOMATO_LOCATION_KNOWN);
+            setMemory(1, x);
+            setMemory(2, y);
     }
 
     /**
@@ -138,10 +144,13 @@ public class MyGreep extends Greep
     {
         Greep greep = getFriend(); //gets the other greeps
 
-        if(!greep)
+        if(greep == null)
             return;
 
-        getMemory();
+        if(greep.getMemory(0)==TOMATO_LOCATION_KNOWN){
+            setKnownLocation(greep.getMemory(1), greep.getMemory(2));
+        }
+
 
 
     }
@@ -151,6 +160,7 @@ public class MyGreep extends Greep
     public void tomatoSearch(){
         
         checkFood();
+        getInfo();
         if(atWater()){
             waterTurn();
         }
@@ -174,6 +184,8 @@ public class MyGreep extends Greep
 
         move(); 
     }
+
+
 
     /**
     * turns the greep when at water
