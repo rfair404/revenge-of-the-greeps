@@ -46,8 +46,8 @@ public class MyGreep extends Greep
     // Remember: you cannot extend the Greep's memory. So:
     // no additional fields (other than final fields) allowed in this class!
     
-    private static final int WATER_TURN_DEGREES = 20;
-    private static final int EDGE_TURN_DEGREES = 20;
+    private static final int WATER_TURN_DEGREES = 30;
+    private static final int EDGE_TURN_DEGREES = 30;
     private static final int TOMATO_LOCATION_KNOWN = 1;
 
     /**
@@ -66,7 +66,7 @@ public class MyGreep extends Greep
         super.act();   // do not delete! leave as first statement in act().
         
         //first attempt to blow up any unfriendly greeps
-        if (numberOfOpponents(false) > 3) {
+        if (numberOfOpponents(true) > numberOfFriends(true)) {
             // Can we see four or more opponents?
             kablam();            
         } 
@@ -75,6 +75,9 @@ public class MyGreep extends Greep
         if (carryingTomato()) {
             if(atShip()) {
                 dropTomato();
+                resetMemory();
+                turnHome();
+                turn(180);
             }
             else {
                 returnTomato();//has 1 move.
@@ -82,10 +85,11 @@ public class MyGreep extends Greep
         }
         else {
             if(atPile()){
-                defendPile();//has 1 move, possibly
                 checkFood();
+                defendPile();//has 1 move, possibly
             }
             else {
+                checkFood();
                 tomatoSearch();//has 1 move
             }
 
@@ -115,8 +119,6 @@ public class MyGreep extends Greep
             // Note: this attempts to load a tomato onto *another* Greep. It won't
             // do anything if we are alone here.
             setKnownLocation(tomatoes.getX(), tomatoes.getY());
-
-
         }
     }
     /**
@@ -126,6 +128,16 @@ public class MyGreep extends Greep
             setMemory(0, TOMATO_LOCATION_KNOWN);
             setMemory(1, x);
             setMemory(2, y);
+            setMemory(3, 200);
+    }
+
+    /**
+    * sets the greeps "GPS" with known coords
+    */
+    public void resetMemory(){
+            setMemory(0, 0);
+            setMemory(1, 0);
+            setMemory(2, 0);
     }
 
     /**
@@ -176,7 +188,6 @@ public class MyGreep extends Greep
         else if (moveWasBlocked()) {
             kablam();      
             //blockedPileTurn();
-
         }
         else {
             randomTurn();//keep going
@@ -212,8 +223,14 @@ public class MyGreep extends Greep
     ** make this greep take tomatoes back to ship
     */
     public void returnTomato(){
-        if(atWater())
+
+        int turncounter = getMemory(3);
+
+        if(atWater()){
             waterTurn();
+            setMemory(3, 250);
+        }
+            
         else
             turnHome();
         
@@ -230,6 +247,9 @@ public class MyGreep extends Greep
                 // Not blocking so lets go towards the centre of the pile
                 turnTowards(tomatoes.getX(), tomatoes.getY());
                 move();
+            }
+            else{
+                loadTomato();
             }
         }
     }
