@@ -45,7 +45,7 @@ public class MyGreep extends Greep
 {
     // Remember: you cannot extend the Greep's memory. So:
     // no additional fields (other than final fields) allowed in this class!
-    
+
     /**
      * Default constructor. Do not remove.
      */
@@ -53,7 +53,7 @@ public class MyGreep extends Greep
     {
         super(ship);
     }
-    
+
     /**
      * Do what a greep's gotta do.
      */
@@ -65,16 +65,53 @@ public class MyGreep extends Greep
                 dropTomato();
             }
             else {
-                turnHome();
-                move();
+                if (atWater() || moveWasBlocked()) {
+                    // If we were blocked, try to move somewhere else
+                    int r = getRotation();
+                    setRotation (r + Greenfoot.getRandomNumber(2) * 200 - 80);
+                    move();
+                    kablam();
+                }
+                else{ turnHome();
+                    move();
+                }
             }
         }
         else {
-            randomWalk();
-            checkFood();
+            TomatoPile tomatoes = getTomatoes();
+            if(tomatoes != null) {
+                block();
+                loadTomato();
+                // Note: this attempts to load a tomato onto *another* Greep. It won't
+                // do anything if we are alone here.
+            }
+            else {
+                randomWalk();
+                checkFood();
+
+                if (numberOfOpponents(false) > 1) {
+
+                    if (numberOfFriends(false) < 3)
+                    // Can we see four or more opponents?
+                        kablam();
+                }
+
+                if (atWater() || moveWasBlocked()) {
+                    // If we were blocked, try to move somewhere else
+                    int r = getRotation();
+                    setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
+                    move();
+                }
+                if (moveWasBlocked())
+                {
+                    kablam();
+
+                }
+
+            }
         }
     }
-    
+
     /** 
      * Move forward, with a slight chance of turning randomly
      */
@@ -84,7 +121,7 @@ public class MyGreep extends Greep
         if (randomChance(3)) {
             turn((Greenfoot.getRandomNumber(3) - 1) * 100);
         }
-        
+
         move();
     }
 
@@ -96,18 +133,28 @@ public class MyGreep extends Greep
         // check whether there's a tomato pile here
         TomatoPile tomatoes = getTomatoes();
         if(tomatoes != null) {
+            block();
             loadTomato();
+
             // Note: this attempts to load a tomato onto *another* Greep. It won't
             // do anything if we are alone here.
         }
+
+        if(numberOfFriends(false) > 2) {
+            loadTomato();
+        }
+
+        if(numberOfOpponents(false) > 2) {
+            kablam();
+        }
+
+        /**
+         * This method specifies the name of the greeps (for display on the result board).
+         * Try to keep the name short so that it displays nicely on the result board.
+         */
+    } public String getName()
+        {
+            return "Felipe";  // write your name here!
+        }
     }
 
-    /**
-     * This method specifies the name of the greeps (for display on the result board).
-     * Try to keep the name short so that it displays nicely on the result board.
-     */
-    public String getName()
-    {
-        return "Your name here";  // write your name here!
-    }
-}
