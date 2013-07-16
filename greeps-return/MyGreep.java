@@ -88,6 +88,10 @@ public class MyGreep extends Greep
                 checkFood();
                 defendPile();//has 1 move, possibly
             }
+            else if(atLastPile()){
+                resetMemory();
+                tomatoSearch();
+            }
             else {
                 checkFood();
                 tomatoSearch();//has 1 move
@@ -230,9 +234,19 @@ public class MyGreep extends Greep
             waterTurn();
             setMemory(3, 250);
         }
-            
-        else
-            turnHome();
+        
+        else {
+            if(turncounter == 1){
+                turncounter = 240;
+            } else if (turncounter < 240 ) {
+                //do nothing for 10 turns after bouncing off water...
+                turnHome();
+            }
+           
+        }    
+    
+
+        setMemory(3,turncounter--);
         
         move();
     }
@@ -248,9 +262,6 @@ public class MyGreep extends Greep
                 turnTowards(tomatoes.getX(), tomatoes.getY());
                 move();
             }
-            else{
-                loadTomato();
-            }
         }
     }
 
@@ -263,6 +274,16 @@ public class MyGreep extends Greep
         if(tomatoes != null)
             return true;
         else return false;
+    }
+    /**
+    ** make this greep take tomatoes back to ship
+    */
+    public boolean atLastPile(){
+        
+        if(distanceTo(getMemory(1), getMemory(2)) < 10)
+            return true;
+        else 
+            return false;
     }
 
 
