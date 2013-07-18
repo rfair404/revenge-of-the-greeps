@@ -45,10 +45,6 @@ public class MyGreep extends Greep
 {
     // Remember: you cannot extend the Greep's memory. So:
     // no additional fields (other than final fields) allowed in this class!
-    
-    private static final int WATER_TURN_DEGREES = 10;
-    private static final int EDGE_TURN_DEGREES = 30;
-    private static final int TOMATO_LOCATION_KNOWN = 1;
 
     /**
      * Default constructor. Do not remove.
@@ -56,6 +52,7 @@ public class MyGreep extends Greep
     public MyGreep(Ship ship)
     {
         super(ship);
+
     }
     
     /**
@@ -64,43 +61,97 @@ public class MyGreep extends Greep
     public void act()
     {
         super.act();   // do not delete! leave as first statement in act().
-        
-        //first attempt to blow up any unfriendly greeps
-        if (numberOfOpponents(false) > 3) {
-            // Can we see four or more opponents?
-            kablam();            
-        } 
-
-        //movement and turning, logically
         if (carryingTomato()) {
             if(atShip()) {
                 dropTomato();
+                
+                turnTowards(getMemory(1), getMemory(2));
+                
             }
             else {
-                returnTomato();//has 1 move.
+
+                if (atWater()) {
+                    // If we were blocked, try to move somewhere else
+                    int r = getRotation();
+                    setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
+                    move();
+                }     
+                else{
+                    turnHome();
+                    
+                    move();
+
+                }
             }
         }
         else {
-            if(atPile()){
-                defendPile();//has 1 move, possibly
+            //TomatoPile tomatoes = getTomatoes();
+            //if(tomatoes != null) {
+                
+               // checkFood();
+               // block();
+                //Note: this attempts to load a tomato onto *another* Greep. It won't
+                //do anything if we are alone here.
+            //}
+             if(getTomatoes() != null) {            
+            TomatoPile tomatoes = getTomatoes(); 
+            if(!blockAtPile(tomatoes)) {
+                // Not blocking so lets go towards the centre of the pile
+                turnTowards(tomatoes.getX(), tomatoes.getY());
+                move();
                 checkFood();
             }
-            else {
-                tomatoSearch();//has 1 move
-            }
+        }
 
+            else {
+                
+                if (moveWasBlocked())
+                {
+                   // kablam();
+                   move(2);
+                }
+                if (atWater()) {
+                    // If we were blocked, try to move somewhere else
+                    int r = getRotation();
+                    setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
+                    
+                    
+                }      
+
+                if (numberOfOpponents(false) > 1)
+                {
+                    
+                    
+                    // Can we see four or more opponents?
+                        kablam(); 
+
+                } 
+                //if (numberOfOpponents(true) > 0)
+                //{
+                    
+
+                    // iffy code
+                       // kablam(); 
+
+               // } 
+                randomWalk();
+                checkFood();
+            }
         }
     }
+
     
     /** 
      * Move forward, with a slight chance of turning randomly
      */
-    public void randomTurn()
+    public void randomWalk()
     {
         // there's a 3% chance that we randomly turn a little off course
         if (randomChance(3)) {
             turn((Greenfoot.getRandomNumber(3) - 1) * 100);
         }
+
+        move();
     }
 
     /**
@@ -112,13 +163,13 @@ public class MyGreep extends Greep
         TomatoPile tomatoes = getTomatoes();
         if(tomatoes != null) {
             loadTomato();
+            block();
+            
+            setMemory(1, (getX()));
+            setMemory(2, (getY()));
+            
             // Note: this attempts to load a tomato onto *another* Greep. It won't
             // do anything if we are alone here.
-
-            setMemory(0, TOMATO_LOCATION_KNOWN);
-            setMemory(1, tomatoes.getX());
-            setMemory(2, tomatoes.getY());
-
         }
     }
 
@@ -128,116 +179,9 @@ public class MyGreep extends Greep
      */
     public String getName()
     {
-        return "Russell's Super Greeps";  // write your name here!
+        return "Ben ";  // write your name here!
     }
 
-    /**
-     * This method asks other greeps about known tomato piles
-     */
-    public void getInfo()
-    {
-        Greep greep = getFriend(); //gets the other greeps
-
-        
-
-      
-
-
-    }
-    /**
-    * make this greep continue searching
-    */
-    public void tomatoSearch(){
-        
-        checkFood();
-        if(atWater()){
-            waterTurn();
-        }
-        else if (atWorldEdge()){
-            worldEdgeTurn();
-        }
-
-        else if (getMemory(0) == TOMATO_LOCATION_KNOWN) {
-            // Hmm. We know where there are some tomatoes...
-            turnTowards(getMemory(1), getMemory(2));
-        }
-
-        else if (moveWasBlocked()) {
-            kablam();      
-            //blockedPileTurn();
-
-        }
-        else {
-            randomTurn();//keep going
-        }
-
-        move(); 
-    }
-
-    /**
-    * turns the greep when at water
-    */
-    public void waterTurn(){
-        turn(WATER_TURN_DEGREES);
-    }
-    /**
-    * turns the greep when at water
-    */
-    public void worldEdgeTurn(){
-        turn(EDGE_TURN_DEGREES);
-    }
-
-    public void blockedPileTurn(){
-
-        // If we were blocked, try to move somewhere else
-        int r = getRotation();
-        setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
-         
-    }
-
-    /**
-    ** make this greep take tomatoes back to ship
-    */
-    public void returnTomato(){
-        if(atWater())
-            waterTurn();
-        else
-            turnHome();
-        
-        move();
-    }
-
-    /**
-    ** make this greep take tomatoes back to ship
-    */
-    public void defendPile(){
-       if(getTomatoes() != null) {            
-            TomatoPile tomatoes = getTomatoes(); 
-            if(!blockAtPile(tomatoes)) {
-                // Not blocking so lets go towards the centre of the pile
-                turnTowards(tomatoes.getX(), tomatoes.getY());
-                move();
-            }
-        }
-    }
-
-
-    /**
-    ** make this greep take tomatoes back to ship
-    */
-    public boolean atPile(){
-        TomatoPile tomatoes = getTomatoes();
-        if(tomatoes != null)
-            return true;
-        else return false;
-    }
-
-
-    /**
-     * If we are at a tomato pile and none of our friends are blocking, we will block.
-     * pulled from SimpleGreep
-     * @return True if we are blocking, false if not.
-     */
     private boolean blockAtPile(TomatoPile tomatoes) 
     {
         // Are we at the centre of the pile of tomatoes?  
@@ -251,25 +195,19 @@ public class MyGreep extends Greep
             return false;
         }
     }
-    /**
-     * get distance to something
-     * pulled from SimpleGreep
-     */
+
     private int distanceTo(int x, int y)
     {
         int deltaX = getX() - x;
         int deltaY = getY() - y;
         return (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
-
-    /**
-     * Test if we are close to one of the edges of the world. Return true if we are.
-     * stolen from orgional creature class
-     */
     public boolean atWorldEdge()
     {
         if(getX() < 3 || getX() > getWorld().getWidth() - 3)
             return true;
+            
+            
         if(getY() < 3 || getY() > getWorld().getHeight() - 3)
             return true;
         else
