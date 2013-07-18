@@ -157,10 +157,9 @@ public abstract class Greep extends Actor
      */
     protected final int[] getShipData()
     {
-        if (atShip()) {
-            return ship.getData();
-        }
-        else {
+        if (atShip()) 
+
+
             return null;
         }
     }
@@ -171,62 +170,36 @@ public abstract class Greep extends Actor
      * used to check for this, and in that case, it is allowed to change direction and try
      * move()ing again.
      */
-    protected final void move()
-    {
-        if(moved)   // can move only once per 'act' round
-            return;
                     
-        if (mode == MODE_FLIPPED)
-            return;
-        
-        if(mode != MODE_WALKING) {
-            mode = MODE_WALKING; // can't be blocking if we're moving
-            setImage(getCurrentImage());
-        }
-        double angle = Math.toRadians( getRotation() );
-        int x = (int) Math.round(getX() + Math.cos(angle) * WALKING_SPEED);
-        int y = (int) Math.round(getY() + Math.sin(angle) * WALKING_SPEED);
-        
-        if (canMoveTo(x,y)) {
-            setLocation(x, y);
-            moved = true;
-        }
-    }
+
+      
+      
+
     
     /**
      * Return true if we have just seen water in front of us. 
      * The edge of the map is also water.
-     */
-    protected final boolean atWater()
-    {
+     *
         return atWater;
     }
     
     /**
      * Return true if we have been blocked by an opponent greep.
      */
-    protected final boolean moveWasBlocked()
-    {
-        return moveWasBlocked;
-    }
+
     
     /**
      * Load a tomato onto *another* greep. This works only if there is another greep
      * and a tomato pile present, otherwise this method does nothing.
      */
-    protected final void loadTomato()
-    {
-        if(mode == MODE_FLIPPED) return;
         // check whether there's a tomato pile here
-        TomatoPile tomatoes = getTomatoes();
+
         
         // check whether there's another friendly greep here
-        List friendlies = getObjectsInRange(10, this.getClass());
 
-        if(! friendlies.isEmpty() && tomatoes != null) {
-            Greep greep = (Greep) friendlies.iterator().next();
-            if(greep.ship == this.ship && !greep.carryingTomato()) {
-                tomatoes.takeOne();
+
+
+
                 greep.carryTomato();
             }
         }

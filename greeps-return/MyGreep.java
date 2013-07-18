@@ -138,10 +138,9 @@ public class MyGreep extends Greep
     {
         Greep greep = getFriend(); //gets the other greeps
 
-        if(!greep)
-            return;
+        
 
-        getMemory();
+      
 
 
     }
